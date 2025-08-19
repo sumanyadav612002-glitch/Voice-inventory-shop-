@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My PWA App</title>
+  <meta name="theme-color" content="#317EFB">
+
+  <!-- Manifest generate karega -->
+  <script>
+    const manifestData = {
+      name: "My PWA App",
+      short_name: "PWAApp",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#ffffff",
+      theme_color: "#317EFB",
+      icons: [
+        {
+          src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAjklEQVR4nO3aMQ6CQBBA0bl2oAhjD9XgYQqQ6CkK8oaDC/jewZ7Mxd7XzzwEAAAAAAAAAAAB8uElJl3YqA3OaSbDJcZ7Jphf0nUzS7E8ySfE2SdLsa1oHXYiSQYZbH5uoilJZttN5iLbV9AduKTWvI9kmawAAAAAAAAAAAAAA4J8BqL4A4SCPuyAAAAAASUVORK5CYII=",
+          sizes: "192x192",
+          type: "image/png"
+        }
+      ]
+    };
+
+    const blob = new Blob([JSON.stringify(manifestData)], {type: "application/json"});
+    const manifestURL = URL.createObjectURL(blob);
+
+    const link = document.createElement("link");
+    link.rel = "manifest";
+    link.href = manifestURL;
+    document.head.appendChild(link);
+  </script>
+</head>
+<body>
+  <h1>🚀 Welcome to My PWA App</h1>
+  <p>This app is installable and works offline!</p>
+
+  <script>
+    // Service Worker inline create karega
+    const swCode = `
+      self.addEventListener("install", (event) => {
+        event.waitUntil(
+          caches.open("v1").then((cache) => {
+            return cache.addAll(["./"]);
+          })
+        );
+      });
+      self.addEventListener("fetch", (event) => {
+        event.respondWith(
+          caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+          })
+        );
+      });
+    `;
+    const swBlob = new Blob([swCode], {type: "application/javascript"});
+    const swUrl = URL.createObjectURL(swBlob);
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register(swUrl).then(() => {
+        console.log("Service Worker Registered!");
+      });
+    }
+  </script>
+</body>
+</html>
